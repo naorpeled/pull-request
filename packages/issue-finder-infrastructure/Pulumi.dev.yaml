@@ -1,0 +1,7 @@
+config:
+  aws:accessKey:
+    secure: AAABAGJEUnRDjYZyKdG2N1wlDypzvXOoBwMaYMqnr+cY5mW2Xio4x1ERWv/s9mo3gLaO0w==
+  aws:region: eu-west-2
+  aws:secretKey:
+    secure: AAABAPuaFSLLN4qxuNE1q5PhYsnH8l40FfaadyTuC0uhlsxBk20f0R/H0Vv8tuTMPJ4RIac7jwXnHciUe/kegWIYsXW5LEr1
+  aws:skipCredentialsValidation: true
