@@ -3,6 +3,7 @@
   "version": 2,
   "projects": {
     "issue-finder": "packages/issue-finder",
+    "issue-finder-infrastructure": "packages/issue-finder-infrastructure",
     "website": "packages/website",
     "website-e2e": "packages/website-e2e"
   }
