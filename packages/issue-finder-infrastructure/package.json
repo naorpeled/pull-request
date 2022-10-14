@@ -1,0 +1,10 @@
+{
+  "name": "issue-finder-infrastructure",
+  "private": true,
+  "version": "0.0.1",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@pulumi/aws": "^5.13.0",
+    "@pulumi/pulumi": "^3.39.1"
+  }
+}

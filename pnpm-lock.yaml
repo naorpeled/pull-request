@@ -7,6 +7,7 @@ specifiers:
   '@nrwl/jest': 14.6.4
   '@nrwl/js': 14.6.4
   '@nrwl/linter': 14.6.4
+  '@nrwl/node': ^14.6.4
   '@nrwl/nx-cloud': latest
   '@nrwl/react': ^14.6.4
   '@nrwl/web': 14.6.4
@@ -18,6 +19,7 @@ specifiers:
   '@types/react-dom': 18.0.6
   '@typescript-eslint/eslint-plugin': ~5.33.1
   '@typescript-eslint/parser': ~5.33.1
+  '@wanews/nx-pulumi': ^0.25.0
   babel-jest: 28.1.1
   core-js: ^3.6.5
   cypress: ^10.2.0
@@ -55,6 +57,7 @@ devDependencies:
   '@nrwl/jest': 14.6.4_78c43636909a0e45e261992c67ea76d8
   '@nrwl/js': 14.6.4_e17cc9b5598fcf090a37495db9ab06f5
   '@nrwl/linter': 14.6.4_2e092fbf2328199104c64caa87eade42
+  '@nrwl/node': 14.6.4_bd5c10d1b6e335e0c562866cef257aa4
   '@nrwl/nx-cloud': 14.6.1
   '@nrwl/react': 14.6.4_d948c1e242370d01fdc1ee02788a8b30
   '@nrwl/web': 14.6.4_501deff3ecb42e9d8482b5f235138a6a
@@ -66,6 +69,7 @@ devDependencies:
   '@types/react-dom': 18.0.6
   '@typescript-eslint/eslint-plugin': 5.33.1_67ef513cbca75f3077ff63057645f63d
   '@typescript-eslint/parser': 5.33.1_eslint@8.15.0+typescript@4.7.4
+  '@wanews/nx-pulumi': 0.25.0
   babel-jest: 28.1.1
   cypress: 10.7.0
   eslint: 8.15.0
@@ -2148,6 +2152,51 @@ packages:
       - typescript
     dev: true
 
+  /@nrwl/node/14.6.4_bd5c10d1b6e335e0c562866cef257aa4:
+    resolution: {integrity: sha512-O6xPWzExGf0/MLLYFnKKyIMSFY0R6KKfyNJLcQ3DvS5tEG7WnHGE6esYxqsTnzgaUdYlxqcKBVjet4tuH8Lg2g==}
+    dependencies:
+      '@nrwl/devkit': 14.6.4_nx@14.6.4+typescript@4.7.4
+      '@nrwl/jest': 14.6.4_78c43636909a0e45e261992c67ea76d8
+      '@nrwl/js': 14.6.4_e17cc9b5598fcf090a37495db9ab06f5
+      '@nrwl/linter': 14.6.4_2e092fbf2328199104c64caa87eade42
+      '@nrwl/workspace': 14.6.4_1396aa9b6760e3e225a725ddb7e89fa5
+      chalk: 4.1.0
+      copy-webpack-plugin: 10.2.4_webpack@5.74.0
+      dotenv: 10.0.0
+      enhanced-resolve: 5.10.0
+      fork-ts-checker-webpack-plugin: 7.2.13_typescript@4.7.4+webpack@5.74.0
+      fs-extra: 10.1.0
+      glob: 7.1.4
+      license-webpack-plugin: 4.0.2_webpack@5.74.0
+      rxjs: 6.6.7
+      source-map-support: 0.5.19
+      terser-webpack-plugin: 5.3.6_webpack@5.74.0
+      tree-kill: 1.2.2
+      ts-loader: 9.3.1_typescript@4.7.4+webpack@5.74.0
+      ts-node: 10.9.1_9f1714867b95c1402393ebb5fee64478
+      tsconfig-paths: 3.14.1
+      tsconfig-paths-webpack-plugin: 3.5.2
+      tslib: 2.4.0
+      webpack: 5.74.0
+      webpack-merge: 5.8.0
+      webpack-node-externals: 3.0.0
+    transitivePeerDependencies:
+      - '@swc-node/register'
+      - '@swc/core'
+      - '@swc/wasm'
+      - '@types/node'
+      - esbuild
+      - eslint
+      - node-notifier
+      - nx
+      - prettier
+      - supports-color
+      - typescript
+      - uglify-js
+      - vue-template-compiler
+      - webpack-cli
+    dev: true
+
   /@nrwl/nx-cloud/14.6.1:
     resolution: {integrity: sha512-ffmt4BlfO9s8fJmXnnKIStmeq6960Ux825kBqz7Jq2y9BYm1DLopNfx54RJHZT6JCDDEt5hMSYTSJk7rV6ROng==}
     hasBin: true
@@ -3255,6 +3304,15 @@ packages:
     dependencies:
       '@typescript-eslint/types': 5.33.1
       eslint-visitor-keys: 3.3.0
+    dev: true
+
+  /@wanews/nx-pulumi/0.25.0:
+    resolution: {integrity: sha512-KRKReO6Y546+ItwRWdVdK3cyKkDj9VX8L6HvIhYbDteGs5qBdFbDxn1vf/dk9WSeV9ZiuRcNcNQVgBR0QdkkYw==}
+    peerDependencies:
+      '@nrwl/devkit': '>14.5.0'
+    dependencies:
+      execa: 5.1.1
+      js-yaml: 4.1.0
     dev: true
 
   /@webassemblyjs/ast/1.11.1:
@@ -4393,7 +4451,7 @@ packages:
     peerDependencies:
       webpack: ^5.1.0
     dependencies:
-      fast-glob: 3.2.7
+      fast-glob: 3.2.11
       glob-parent: 6.0.2
       globby: 12.2.0
       normalize-path: 3.0.0
@@ -5940,7 +5998,7 @@ packages:
       '@types/glob': 7.2.0
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.2.7
+      fast-glob: 3.2.11
       glob: 7.2.3
       ignore: 5.2.0
       merge2: 1.4.1
@@ -5965,7 +6023,7 @@ packages:
     dependencies:
       array-union: 3.0.1
       dir-glob: 3.0.1
-      fast-glob: 3.2.7
+      fast-glob: 3.2.11
       ignore: 5.2.0
       merge2: 1.4.1
       slash: 4.0.0
@@ -8996,7 +9054,7 @@ packages:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     hasBin: true
     dependencies:
-      glob: 7.1.4
+      glob: 7.2.3
     dev: true
 
   /rollup-plugin-copy/3.4.0:
