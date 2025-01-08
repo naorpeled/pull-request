@@ -1,0 +1,8 @@
+{
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json",
+  "version": 2,
+  "projects": {
+    "pull-request-web": "apps/pull-request-web",
+    "pull-request-web-e2e": "apps/pull-request-web-e2e"
+  }
+}
