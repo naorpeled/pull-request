@@ -20,5 +20,6 @@
     "@nrwl/react": { "application": { "babel": true } },
     "@nrwl/next": { "application": { "style": "css", "linter": "eslint" } }
   },
-  "defaultProject": "pull-request-web"
+  "defaultProject": "pull-request-web",
+  "nxCloudId": "677eea255c2b0575ff3524d1"
 }
