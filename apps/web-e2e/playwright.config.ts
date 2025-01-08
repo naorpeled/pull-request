@@ -25,10 +25,8 @@ export default defineConfig({
   },
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'pnpm nx run web:serve-static',
+    command: 'pnpm nx run web:start',
     url: 'http://localhost:3000',
-    stderr: 'pipe',
-    stdout: 'pipe',
     reuseExistingServer: !process.env.CI,
     cwd: workspaceRoot,
   },
