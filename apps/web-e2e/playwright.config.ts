@@ -27,6 +27,8 @@ export default defineConfig({
   webServer: {
     command: 'pnpm nx run web:serve-static',
     url: 'http://localhost:3000',
+    stderr: 'pipe',
+    stdout: 'pipe',
     reuseExistingServer: !process.env.CI,
     cwd: workspaceRoot,
   },
