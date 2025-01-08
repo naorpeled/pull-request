@@ -6,7 +6,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>Welcome to pull-request-web!</title>
+        <title>Welcome to pull-request.dev!</title>
       </Head>
       <main className="app">
         <Component {...pageProps} />
