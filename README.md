@@ -16,13 +16,13 @@
 To run the dev server for your app, use:
 
 ```sh
-npx nx dev pull-request
+npx nx dev web
 ```
 
 To create a production bundle:
 
 ```sh
-npx nx build pull-request
+npx nx build web
 ```
 
 To see all available targets to run for a project, run:
