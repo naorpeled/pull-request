@@ -1,82 +1,124 @@
-# PullRequest
+# PullRequest.dev 🚀
+
+Your AI-powered guide to making your first pull request. Discover good first issues and start contributing to open source projects.
 
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+## 🌟 Features
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/next?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+- 🤖 **AI-Powered Guide** - Natural language interface to find the perfect first issue
+- 🔍 **Smart Filtering** - Filter by languages, stars, assignment status, and difficulty
+- 🎨 **Beautiful UI** - Modern, responsive chat interface
+- ⚡ **Fast Backend** - AWS Lambda API with fallback to direct fetching
+- 📊 **Real-time Data** - Always fresh from [goodfirstissues](https://github.com/iedr/goodfirstissues)
+- 🚀 **Beginner Friendly** - Helping developers make their first pull request
 
-## Finish your CI setup
+## 🚀 Quick Start
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/UC4mrijhCK)
+### Install Dependencies
 
+```sh
+pnpm install
+```
 
-## Run tasks
-
-To run the dev server for your app, use:
+### Run the Chatbot
 
 ```sh
 npx nx dev web
 ```
 
-To create a production bundle:
+Visit `http://localhost:4200` to start chatting!
+
+### Build for Production
 
 ```sh
 npx nx build web
 ```
 
-To see all available targets to run for a project, run:
+## 📦 Project Structure
+
+This is an Nx monorepo containing:
+
+- **`apps/web`** - Next.js chatbot frontend
+- **`apps/lambda-api`** - AWS Lambda backend (optional)
+
+## 📚 Documentation
+
+- **[Chatbot Guide](./CHATBOT-GUIDE.md)** - Complete chatbot documentation
+- **[Lambda API Guide](./apps/lambda-api/README.md)** - Backend deployment guide
+
+## 💬 Example Queries
+
+Try asking:
+
+- "I want to make my first pull request in JavaScript"
+- "Find easy Python issues for beginners"
+- "Show me popular React projects I can contribute to"
+- "I'm ready for my first Rust PR"
+
+## 🏗️ Tech Stack
+
+- **Frontend**: Next.js 15, React 19, Tailwind CSS 4
+- **Backend**: AWS Lambda (optional), TypeScript
+- **Data Source**: [goodfirstissues](https://github.com/iedr/goodfirstissues)
+- **Deployment**: Vercel (frontend), AWS (backend)
+
+## 🔧 Development
+
+View available commands:
 
 ```sh
-npx nx show project pull-request
+npx nx show project web
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
+Build the Lambda:
 
 ```sh
-npx nx g @nx/next:app demo
+npx nx build lambda-api
+npx nx package lambda-api
 ```
 
-To generate a new library, use:
+## 🚢 Deployment
+
+### Frontend (Vercel)
 
 ```sh
-npx nx g @nx/react:lib mylib
+cd apps/web
+vercel
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+### Backend (AWS Lambda)
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+See [Lambda API README](./apps/lambda-api/README.md) for detailed deployment instructions:
 
+```sh
+cd apps/lambda-api
+sam build
+sam deploy --guided
+```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 📖 Learn More
 
-## Install Nx Console
+- [Nx Documentation](https://nx.dev)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [AWS Lambda Documentation](https://docs.aws.amazon.com/lambda/)
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+## 🤝 Contributing
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+We welcome contributions! PullRequest.dev helps people make their first PR - how meta! 😄
 
-## Useful links
+Want to contribute? Check out our good first issues (of course!).
 
-Learn more:
+## 📄 License
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/next?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+MIT
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 🙏 Credits
+
+- Data provided by [goodfirstissues](https://github.com/iedr/goodfirstissues)
+- Built with [Nx](https://nx.dev), Next.js, and React
+- Powered by AWS Lambda
+
+---
+
+**Live at [pull-request.dev](https://pull-request.dev)** | **[Chatbot Guide](./CHATBOT-GUIDE.md)** | **[Lambda API Guide](./apps/lambda-api/README.md)**

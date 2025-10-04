@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Good First Issues API - Lambda Function
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Runtime: nodejs20.x
+    Architectures:
+      - x86_64
+
+Resources:
+  GoodFirstIssuesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: good-first-issues-api
+      CodeUri: ./
+      Handler: dist/handler.handler
+      Description: Fetches and filters good first issues from goodfirstissues repository
+      Environment:
+        Variables:
+          NODE_ENV: production
+      Events:
+        GetIssues:
+          Type: Api
+          Properties:
+            Path: /issues
+            Method: get
+            RestApiId: !Ref GoodFirstIssuesApi
+        OptionsIssues:
+          Type: Api
+          Properties:
+            Path: /issues
+            Method: options
+            RestApiId: !Ref GoodFirstIssuesApi
+
+  GoodFirstIssuesApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: GoodFirstIssuesApi
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET, POST, OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          title: Good First Issues API
+          version: '1.0'
+        paths:
+          /issues:
+            get:
+              produces:
+                - application/json
+              responses:
+                '200':
+                  description: Successful response
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GoodFirstIssuesFunction.Arn}/invocations'
+
+  GoodFirstIssuesFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${GoodFirstIssuesFunction}'
+      RetentionInDays: 7
+
+Outputs:
+  GoodFirstIssuesApi:
+    Description: API Gateway endpoint URL for Prod stage
+    Value: !Sub 'https://${GoodFirstIssuesApi}.execute-api.${AWS::Region}.amazonaws.com/prod/issues'
+  GoodFirstIssuesFunction:
+    Description: Lambda Function ARN
+    Value: !GetAtt GoodFirstIssuesFunction.Arn
+  GoodFirstIssuesFunctionIamRole:
+    Description: Implicit IAM Role created for function
+    Value: !GetAtt GoodFirstIssuesFunctionRole.Arn
+

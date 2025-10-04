@@ -1,0 +1,17 @@
+{
+  "name": "PullRequest.dev",
+  "short_name": "PR.dev",
+  "description": "Your guide to making your first pull request",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
+

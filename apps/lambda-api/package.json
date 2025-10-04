@@ -1,0 +1,20 @@
+{
+  "name": "@pull-request/lambda-api",
+  "version": "1.0.0",
+  "description": "AWS Lambda API for Good First Issues",
+  "main": "dist/handler.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "package": "npm run build && zip -r lambda.zip dist node_modules"
+  },
+  "dependencies": {
+    "@types/aws-lambda": "^8.10.145"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.2",
+    "typescript": "^5.9.3"
+  }
+}
+

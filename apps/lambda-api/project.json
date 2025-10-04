@@ -1,0 +1,34 @@
+{
+  "name": "lambda-api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/lambda-api/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "apps/lambda-api/dist",
+        "main": "apps/lambda-api/src/handler.ts",
+        "tsConfig": "apps/lambda-api/tsconfig.json"
+      }
+    },
+    "package": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "cd apps/lambda-api && zip -r lambda.zip dist node_modules"
+        ]
+      },
+      "dependsOn": ["build"]
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd apps/lambda-api && sam deploy --guided"
+      },
+      "dependsOn": ["package"]
+    }
+  }
+}
+
