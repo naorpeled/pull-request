@@ -96,11 +96,6 @@ export default function Index() {
         </div>
       </header>
 
-      {/* Quick Filters */}
-      <div className="max-w-4xl mx-auto w-full">
-        <QuickFilters onFilterClick={handleSendMessage} />
-      </div>
-
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
@@ -131,8 +126,9 @@ export default function Index() {
         </div>
       </div>
 
-      {/* Input */}
+      {/* Quick Filters + Input Area */}
       <div className="max-w-4xl mx-auto w-full">
+        <QuickFilters onFilterClick={handleSendMessage} />
         <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
       </div>
     </div>

@@ -19,7 +19,7 @@ export function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="backdrop-blur-xl bg-white/70 border-t border-white/20 p-4 shadow-2xl shadow-indigo-100/50">
+    <form onSubmit={handleSubmit} className="backdrop-blur-xl bg-white/70 px-4 pb-4 shadow-2xl shadow-indigo-100/50">
       <div className="flex gap-3">
         <input
           type="text"

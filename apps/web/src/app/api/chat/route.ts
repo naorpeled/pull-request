@@ -54,25 +54,32 @@ export async function POST(request: NextRequest) {
 function parseUserIntent(message: string) {
   const lowerMessage = message.toLowerCase();
   
-  // Detect languages
+  // Detect languages - map to actual GitHub language names
   const languages: string[] = [];
   const languageKeywords = {
-    javascript: ['javascript', 'js', 'node'],
-    typescript: ['typescript', 'ts'],
-    python: ['python', 'py'],
-    rust: ['rust'],
-    go: ['golang', 'go'],
-    java: ['java'],
-    ruby: ['ruby'],
-    php: ['php'],
-    csharp: ['c#', 'csharp'],
-    cpp: ['c++', 'cpp'],
-    react: ['react', 'reactjs'],
+    'JavaScript': ['javascript', 'js', 'node', 'react', 'reactjs', 'vue', 'angular'],
+    'TypeScript': ['typescript', 'ts'],
+    'Python': ['python', 'py'],
+    'Rust': ['rust'],
+    'Go': ['golang', 'go'],
+    'Java': ['java'],
+    'Ruby': ['ruby'],
+    'PHP': ['php'],
+    'C#': ['c#', 'csharp', 'dotnet'],
+    'C++': ['c++', 'cpp'],
+    'Swift': ['swift', 'ios'],
+    'Kotlin': ['kotlin', 'android'],
+    'C': ['c language', ' c '],
+    'Shell': ['shell', 'bash'],
+    'HTML': ['html'],
+    'CSS': ['css'],
   };
 
   for (const [lang, keywords] of Object.entries(languageKeywords)) {
     if (keywords.some(keyword => lowerMessage.includes(keyword))) {
-      languages.push(lang);
+      if (!languages.includes(lang)) {
+        languages.push(lang);
+      }
     }
   }
 

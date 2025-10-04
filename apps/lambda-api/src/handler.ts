@@ -33,10 +33,12 @@ function filterIssues(
     // Filter by languages
     if (filters.languages && filters.languages.length > 0) {
       const repoLanguages = issue.issue_repo.repo_langs.Nodes.map(
-        (node) => node.repo_prog_language.toLowerCase()
+        (node) => node.repo_prog_language
       );
       const hasMatchingLanguage = filters.languages.some((lang) =>
-        repoLanguages.includes(lang.toLowerCase())
+        repoLanguages.some((repoLang) =>
+          repoLang.toLowerCase() === lang.toLowerCase()
+        )
       );
       if (!hasMatchingLanguage) return false;
     }

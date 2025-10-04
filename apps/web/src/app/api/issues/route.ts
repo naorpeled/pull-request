@@ -31,9 +31,13 @@ export async function GET(request: NextRequest) {
     if (languages && languages.length > 0) {
       filteredIssues = filteredIssues.filter((item: any) => {
         const repoLanguages = item.Issue.issue_repo.repo_langs.Nodes.map(
-          (node: any) => node.repo_prog_language.toLowerCase()
+          (node: any) => node.repo_prog_language
         );
-        return languages.some((lang) => repoLanguages.includes(lang.toLowerCase()));
+        return languages.some((lang) => 
+          repoLanguages.some((repoLang: string) => 
+            repoLang.toLowerCase() === lang.toLowerCase()
+          )
+        );
       });
     }
 
