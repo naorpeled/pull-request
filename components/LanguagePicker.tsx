@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const COMMON_LANGUAGES = [
   'Python',
@@ -44,6 +44,8 @@ interface LanguagePickerProps {
 export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }: LanguagePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLDivElement>(null)
 
   const filteredLanguages = COMMON_LANGUAGES.filter(lang =>
     lang.toLowerCase().includes(searchTerm.toLowerCase())
@@ -57,66 +59,84 @@ export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }
     onUpdate()
   }
 
-  return (
-    <div style={{ position: 'relative' }}>
-      <div
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          padding: 'var(--spacing-md) var(--spacing-lg)',
-          border: '1px solid var(--border-color)',
-          borderRadius: 'var(--radius-lg)',
-          backgroundColor: 'var(--bg-secondary)',
-          backdropFilter: 'blur(10px)',
-          cursor: 'pointer',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          boxShadow: 'var(--shadow-md)',
-          transition: 'all 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = 'var(--primary-light)';
-          e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = 'var(--border-color)';
-          e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-        }}
-      >
-        <span style={{ 
-          color: selectedLanguages.length === 0 ? 'var(--text-secondary)' : 'var(--text-primary)',
-          fontWeight: selectedLanguages.length === 0 ? '400' : '500'
-        }}>
-          {selectedLanguages.length === 0
-            ? 'Select programming languages...'
-            : `${selectedLanguages.length} language${selectedLanguages.length > 1 ? 's' : ''} selected`}
-        </span>
-        <span style={{ 
-          color: 'var(--primary)',
-          fontSize: '0.8rem',
-          transition: 'transform 0.2s ease',
-          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)'
-        }}>▼</span>
-      </div>
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
 
-      {isOpen && (
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  return (
+    <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div ref={triggerRef} style={{ position: 'relative' }}>
         <div
+          onClick={() => setIsOpen(!isOpen)}
           style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
-            marginTop: 'var(--spacing-sm)',
+            padding: 'var(--spacing-md) var(--spacing-lg)',
             border: '1px solid var(--border-color)',
             borderRadius: 'var(--radius-lg)',
             backgroundColor: 'var(--bg-secondary)',
             backdropFilter: 'blur(10px)',
-            boxShadow: 'var(--shadow-xl)',
-            zIndex: 1000,
-            maxHeight: '300px',
-            overflowY: 'auto',
+            cursor: 'pointer',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            boxShadow: 'var(--shadow-md)',
+            transition: 'all 0.2s ease',
+            minHeight: '72px'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--primary-light)';
+            e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-color)';
+            e.currentTarget.style.boxShadow = 'var(--shadow-md)';
           }}
         >
+          <span style={{ 
+            color: selectedLanguages.length === 0 ? 'var(--text-secondary)' : 'var(--text-primary)',
+            fontWeight: selectedLanguages.length === 0 ? '400' : '500'
+          }}>
+            {selectedLanguages.length === 0
+              ? 'Select programming languages...'
+              : `${selectedLanguages.length} language${selectedLanguages.length > 1 ? 's' : ''} selected`}
+          </span>
+          <span style={{ 
+            color: 'var(--primary)',
+            fontSize: '0.8rem',
+            transition: 'transform 0.2s ease',
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+          }}>▼</span>
+        </div>
+
+        {isOpen && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              right: 0,
+              marginTop: 'var(--spacing-sm)',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius-lg)',
+              backgroundColor: 'var(--bg-secondary)',
+              backdropFilter: 'blur(10px)',
+              boxShadow: 'var(--shadow-xl)',
+              zIndex: 1000,
+              maxHeight: '300px',
+              overflowY: 'auto',
+            }}
+          >
           <input
             type="text"
             placeholder="Search languages..."
@@ -160,10 +180,6 @@ export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }
                     e.currentTarget.style.backgroundColor = 'transparent';
                   }
                 }}
-                onClick={e => {
-                  e.stopPropagation()
-                  toggleLanguage(lang)
-                }}
               >
                 <input
                   type="checkbox"
@@ -185,7 +201,8 @@ export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }
             ))}
           </div>
         </div>
-      )}
+        )}
+      </div>
 
       {selectedLanguages.length > 0 && (
         <div style={{ marginTop: 'var(--spacing-md)', display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-sm)' }}>

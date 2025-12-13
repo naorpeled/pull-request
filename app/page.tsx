@@ -62,39 +62,37 @@ export default function Home() {
       />
       <div style={{ 
         flex: 1, 
-        maxWidth: '1600px', 
+        maxWidth: '1400px', 
         margin: '0 auto', 
         width: '100%', 
-        padding: 'var(--spacing-md)',
+        padding: 'var(--spacing-lg) var(--spacing-md)',
         display: 'flex',
         flexDirection: 'column',
         height: 'calc(100vh - 100px)',
-        gap: 'var(--spacing-md)'
+        gap: 'var(--spacing-lg)'
       }}>
         <div style={{
           textAlign: 'center',
-          flexShrink: 0
+          flexShrink: 0,
+          paddingTop: 'var(--spacing-md)'
         }}>
           <h1 style={{ 
-            marginBottom: 'var(--spacing-xs)', 
-            fontSize: 'clamp(1.5rem, 3vw, 2.5rem)', 
+            marginBottom: 'var(--spacing-sm)', 
+            fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', 
             fontWeight: '800',
-            background: 'linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
+            color: 'var(--text-primary)',
             lineHeight: '1.2',
-            textShadow: '0 2px 20px rgba(255, 255, 255, 0.3)'
+            letterSpacing: '-0.02em'
           }}>
             Find Your Next Open Source Contribution
           </h1>
           <p style={{
-            fontSize: 'clamp(0.875rem, 1.5vw, 1rem)',
-            color: 'rgba(255, 255, 255, 0.95)',
+            fontSize: 'clamp(0.9rem, 1.5vw, 1.1rem)',
+            color: 'var(--text-secondary)',
             fontWeight: '400',
-            maxWidth: '600px',
+            maxWidth: '650px',
             margin: '0 auto',
-            textShadow: '0 1px 10px rgba(0, 0, 0, 0.2)'
+            lineHeight: '1.5'
           }}>
             Discover perfect first issues tailored to your skills and interests
           </p>

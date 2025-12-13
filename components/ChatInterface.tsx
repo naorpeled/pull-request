@@ -72,6 +72,7 @@ export default function ChatInterface({
   const [issueBodyStatus, setIssueBodyStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
   const [issueBodyError, setIssueBodyError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const chatSectionRef = useRef<HTMLDivElement>(null)
 
   const markdownComponents = {
     a: ({ children, href }: ComponentPropsWithoutRef<'a'>) => (
@@ -109,6 +110,13 @@ export default function ChatInterface({
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    if (!selectedIssue) return
+    requestAnimationFrame(() => {
+      chatSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [selectedIssue])
 
   useEffect(() => {
     if (!selectedIssue?.url) {
@@ -422,30 +430,60 @@ export default function ChatInterface({
       gap: 'var(--spacing-lg)',
       position: 'relative'
     }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-md)', alignItems: 'flex-end' }}>
-        <div style={{ flex: 1, minWidth: '280px' }}>
-          <LanguagePicker
-            selectedLanguages={preferredLanguages}
-            onChange={onLanguagesChange}
-            onUpdate={() => {
-              if (hasAnalyticsConsent) {
-                trackEvent('language_pref_updated', { count: preferredLanguages.length })
-              }
-            }}
-          />
+      <div style={{ 
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 'var(--spacing-md)', 
+        alignItems: 'stretch',
+        padding: 'var(--spacing-sm) 0'
+      }}>
+        <div style={{ 
+          flex: '1 1 300px', 
+          minWidth: '280px',
+          display: 'flex',
+          alignItems: 'stretch'
+        }}>
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100%'
+          }}>
+            <LanguagePicker
+              selectedLanguages={preferredLanguages}
+              onChange={onLanguagesChange}
+              onUpdate={() => {
+                if (hasAnalyticsConsent) {
+                  trackEvent('language_pref_updated', { count: preferredLanguages.length })
+                }
+              }}
+            />
+          </div>
         </div>
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: 'var(--spacing-sm)', 
+          gap: 'var(--spacing-md)', 
           padding: 'var(--spacing-md)', 
           border: '1px solid var(--border-color)', 
           borderRadius: 'var(--radius-lg)',
           backgroundColor: 'var(--bg-secondary)',
-          boxShadow: 'var(--shadow-md)'
+          backdropFilter: 'blur(10px)',
+          boxShadow: 'var(--shadow-md)',
+          flex: '1 1 400px',
+          minWidth: '320px',
+          alignSelf: 'stretch'
         }}>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: 'var(--text-primary)', fontWeight: 500, minWidth: '220px' }}>
-            <span>Minimum repository stars: {minStars.toLocaleString()}</span>
+          <label style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '8px', 
+            color: 'var(--text-primary)', 
+            fontWeight: 500, 
+            flex: 1,
+            minWidth: '200px'
+          }}>
+            <span style={{ fontSize: '0.9rem' }}>Minimum repository stars: {minStars.toLocaleString()}</span>
             <input
               type="range"
               min={0}
@@ -453,23 +491,41 @@ export default function ChatInterface({
               step={50}
               value={minStars}
               onChange={e => setMinStars(Number(e.target.value) || 0)}
-              style={{ width: '100%' }}
+              style={{ 
+                width: '100%',
+                accentColor: 'var(--primary)',
+                cursor: 'pointer'
+              }}
             />
           </label>
           <button
             onClick={handleSearch}
             disabled={isSearching}
             style={{
-              padding: 'var(--spacing-md) var(--spacing-lg)',
-              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+              padding: 'var(--spacing-md) var(--spacing-xl)',
+              background: isSearching 
+                ? 'rgba(99, 102, 241, 0.5)' 
+                : 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
               color: 'white',
               border: 'none',
               borderRadius: 'var(--radius-lg)',
               fontWeight: 600,
               cursor: isSearching ? 'not-allowed' : 'pointer',
-              opacity: isSearching ? 0.6 : 1,
+              opacity: isSearching ? 0.7 : 1,
               boxShadow: isSearching ? 'none' : 'var(--shadow-md)',
-              minWidth: '180px'
+              minWidth: '160px',
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap'
+            }}
+            onMouseEnter={(e) => {
+              if (!isSearching) {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = isSearching ? 'none' : 'var(--shadow-md)';
             }}
           >
             {isSearching ? 'Searching...' : 'Search repositories'}
@@ -479,11 +535,13 @@ export default function ChatInterface({
 
       {statusMessage && (
         <div style={{ 
-          padding: 'var(--spacing-sm) var(--spacing-md)', 
+          padding: 'var(--spacing-md)', 
           borderRadius: 'var(--radius-md)', 
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-          border: '1px solid var(--border-color-light)',
-          color: 'var(--text-secondary)'
+          backgroundColor: 'var(--bg-tertiary)',
+          border: '1px solid var(--border-color)',
+          color: 'var(--text-secondary)',
+          fontSize: '0.9rem',
+          lineHeight: '1.5'
         }}>
           {statusMessage}
         </div>
@@ -493,9 +551,10 @@ export default function ChatInterface({
         display: 'grid', 
         gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
         gap: 'var(--spacing-md)',
-        maxHeight: '360px',
+        maxHeight: '400px',
         overflowY: 'auto',
-        paddingRight: '4px'
+        paddingRight: 'var(--spacing-xs)',
+        paddingBottom: 'var(--spacing-xs)'
       }}>
         {repositories.map(repo => (
           <div
@@ -503,12 +562,22 @@ export default function ChatInterface({
             style={{
               border: '1px solid var(--border-color)',
               borderRadius: 'var(--radius-xl)',
-              padding: 'var(--spacing-md)',
+              padding: 'var(--spacing-lg)',
               backgroundColor: 'var(--bg-secondary)',
+              backdropFilter: 'blur(10px)',
               boxShadow: 'var(--shadow-md)',
               display: 'flex',
               flexDirection: 'column',
-              gap: 'var(--spacing-sm)'
+              gap: 'var(--spacing-md)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'var(--shadow-md)';
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--spacing-sm)' }}>
@@ -547,21 +616,30 @@ export default function ChatInterface({
               {repo.issueCount} matching issue{repo.issueCount === 1 ? '' : 's'}
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
               {repo.issues.map(issue => (
                 <div
                   key={issue.url}
                   style={{
-                    border: '1px solid var(--border-color-light)',
+                    border: '1px solid var(--border-color)',
                     borderRadius: 'var(--radius-md)',
-                    padding: 'var(--spacing-sm) var(--spacing-md)',
-                    backgroundColor: 'var(--bg-primary)',
+                    padding: 'var(--spacing-md)',
+                    backgroundColor: 'var(--bg-tertiary)',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '6px'
+                    gap: 'var(--spacing-sm)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--primary-light)';
+                    e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--border-color)';
+                    e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
                   }}
                 >
-                  <div style={{ fontWeight: 600, color: 'var(--primary-dark)' }}>
+                  <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.4' }}>
                     {issue.title}
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -586,14 +664,25 @@ export default function ChatInterface({
                     <button
                       onClick={() => handleIssueSelect(issue, repo)}
                       style={{
-                        padding: '6px 10px',
+                        padding: '8px 14px',
                         borderRadius: 'var(--radius-md)',
-                        border: '1px solid var(--primary-light)',
+                        border: 'none',
                         background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
                         color: 'white',
                         fontWeight: 600,
                         cursor: 'pointer',
-                        boxShadow: 'var(--shadow-sm)'
+                        boxShadow: 'var(--shadow-sm)',
+                        fontSize: '0.85rem',
+                        transition: 'all 0.2s ease',
+                        whiteSpace: 'nowrap'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                        e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
                       }}
                     >
                       Chat about this issue
@@ -607,35 +696,53 @@ export default function ChatInterface({
       </div>
 
       <div
+        ref={chatSectionRef}
         style={{
-          flex: 1,
-          border: '1px solid var(--border-color)',
-          borderRadius: 'var(--radius-xl)',
-          padding: 'var(--spacing-xl)',
-          paddingRight: 'var(--spacing-xl)',
-          overflowY: 'auto',
-          backgroundColor: 'var(--bg-secondary)',
-          backdropFilter: 'blur(10px)',
-          boxShadow: 'var(--shadow-xl)',
+          flex: selectedIssue ? 1 : 0,
+          minHeight: 0,
+          opacity: selectedIssue ? 1 : 0,
+          maxHeight: selectedIssue ? '2400px' : '0px',
+          transform: selectedIssue ? 'translateY(0)' : 'translateY(-8px)',
+          transition: 'opacity 200ms ease, transform 200ms ease, max-height 300ms ease',
+          overflow: 'hidden',
+          pointerEvents: selectedIssue ? 'auto' : 'none',
           display: 'flex',
           flexDirection: 'column',
-          position: 'relative',
-          minHeight: 0,
-          transition: 'padding-right 0.3s ease',
+          gap: 'var(--spacing-lg)',
         }}
       >
-        <div style={{ 
-          padding: 'var(--spacing-md)', 
-          border: '1px solid var(--border-color-light)', 
-          borderRadius: 'var(--radius-lg)',
-          backgroundColor: 'var(--bg-primary)',
-          marginBottom: 'var(--spacing-md)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--spacing-xs)'
-        }}>
-          {selectedIssue ? (
-            <>
+        <div
+          style={{
+            flex: 1,
+            border: '1px solid var(--border-color)',
+            borderRadius: 'var(--radius-xl)',
+            padding: 'var(--spacing-xl)',
+            paddingRight: 'var(--spacing-xl)',
+            overflowY: 'auto',
+            backgroundColor: 'var(--bg-secondary)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: 'var(--shadow-xl)',
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative',
+            minHeight: 0,
+            transition: 'padding-right 0.3s ease',
+          }}
+        >
+          <div style={{ 
+            padding: 'var(--spacing-lg)', 
+            border: '1px solid var(--border-color)', 
+            borderRadius: 'var(--radius-lg)',
+            backgroundColor: 'var(--bg-secondary)',
+            backdropFilter: 'blur(10px)',
+            marginBottom: 'var(--spacing-lg)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--spacing-md)',
+            boxShadow: 'var(--shadow-sm)'
+          }}>
+            {selectedIssue && (
+              <>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--spacing-sm)' }}>
                 <div>
                   <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
@@ -673,14 +780,15 @@ export default function ChatInterface({
                 {selectedIssue.repoDesc || 'No repository description provided.'}
               </div>
               <div style={{ 
-                color: 'var(--text-primary)', 
+                color: 'var(--text-secondary)', 
                 fontSize: '0.9rem',
-                backgroundColor: 'rgba(255,255,255,0.03)',
-                border: '1px solid var(--border-color-light)',
+                backgroundColor: 'var(--bg-tertiary)',
+                border: '1px solid var(--border-color)',
                 borderRadius: 'var(--radius-md)',
-                padding: 'var(--spacing-sm) var(--spacing-md)',
-                maxHeight: '200px',
-                overflowY: 'auto'
+                padding: 'var(--spacing-md)',
+                maxHeight: '220px',
+                overflowY: 'auto',
+                lineHeight: '1.6'
               }}>
                 {issueBodyStatus === 'loading' && 'Fetching issue description from GitHub...'}
                 {issueBodyStatus === 'error' && (issueBodyError || 'Unable to load issue description.')}
@@ -715,32 +823,44 @@ export default function ChatInterface({
                 </a>
               </div>
             </>
-          ) : (
-            <div style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
-              Search and pick an issue to unlock the chat assistant.
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        {messages.length === 0 && (
+        {selectedIssue && messages.length === 0 && (
           <div style={{ 
             color: 'var(--text-secondary)', 
             textAlign: 'center', 
-            marginTop: '40px',
-            padding: 'var(--spacing-xl)'
+            marginTop: '60px',
+            padding: 'var(--spacing-xl)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 1
           }}>
             <div style={{
-              fontSize: '3rem',
-              marginBottom: 'var(--spacing-md)',
-              opacity: 0.7
+              fontSize: '4rem',
+              marginBottom: 'var(--spacing-lg)',
+              opacity: 0.6,
+              filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2))'
             }}>💬</div>
             <p style={{ 
-              fontSize: '1.05rem', 
+              fontSize: '1.1rem', 
               fontWeight: '500',
               color: 'var(--text-primary)',
-              marginBottom: 'var(--spacing-sm)'
+              marginBottom: 'var(--spacing-sm)',
+              maxWidth: '500px',
+              lineHeight: '1.6'
             }}>
               Choose languages, set a star threshold, search repositories, then select an issue to start chatting about contributing.
+            </p>
+            <p style={{
+              fontSize: '0.9rem',
+              color: 'var(--text-tertiary)',
+              marginTop: 'var(--spacing-xs)',
+              maxWidth: '450px'
+            }}>
+              The AI assistant will help you understand the issue and plan your contribution.
             </p>
           </div>
         )}
@@ -765,13 +885,14 @@ export default function ChatInterface({
                 minWidth: msg.recommendedIssues && msg.recommendedIssues.length > 0 ? 'min(500px, 90%)' : 'auto',
                 backgroundColor: msg.role === 'user' 
                   ? 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)'
-                  : 'var(--bg-primary)',
+                  : 'var(--bg-secondary)',
                 background: msg.role === 'user' 
                   ? 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)'
-                  : 'var(--bg-primary)',
+                  : 'var(--bg-secondary)',
                 color: msg.role === 'user' ? 'white' : 'var(--text-primary)',
                 boxShadow: msg.role === 'user' ? 'var(--shadow-md)' : 'var(--shadow-sm)',
-                border: msg.role === 'user' ? 'none' : '1px solid var(--border-color-light)',
+                border: msg.role === 'user' ? 'none' : '1px solid var(--border-color)',
+                backdropFilter: msg.role === 'assistant' ? 'blur(10px)' : 'none',
                 lineHeight: '1.6',
                 wordWrap: 'break-word',
                 display: 'flex',
@@ -780,8 +901,17 @@ export default function ChatInterface({
               }}
             >
               {msg.content && (
-                <div style={{ whiteSpace: 'pre-wrap' }}>
-                  {msg.content}
+                <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.7' }}>
+                  {msg.role === 'assistant' ? (
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={markdownComponents}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
+                  ) : (
+                    msg.content
+                  )}
                 </div>
               )}
               {msg.recommendedIssues && msg.recommendedIssues.length > 0 && (
@@ -806,83 +936,90 @@ export default function ChatInterface({
             fontStyle: 'italic',
             display: 'flex',
             alignItems: 'center',
-            gap: 'var(--spacing-sm)',
-            padding: 'var(--spacing-md)'
+            gap: 'var(--spacing-md)',
+            padding: 'var(--spacing-md) var(--spacing-lg)',
+            backgroundColor: 'var(--bg-tertiary)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-color)',
+            width: 'fit-content',
+            marginLeft: 'var(--spacing-md)'
           }}>
             <span className="pulse-dot"></span>
-            Thinking...
+            <span style={{ fontSize: '0.95rem' }}>Thinking...</span>
           </div>
         )}
 
         <div ref={messagesEndRef} />
-      </div>
+        </div>
 
-      <form onSubmit={handleSubmit} style={{ 
-        display: 'flex', 
-        gap: 'var(--spacing-md)',
-        backgroundColor: 'var(--bg-secondary)',
-        backdropFilter: 'blur(10px)',
-        padding: 'var(--spacing-md)',
-        borderRadius: 'var(--radius-xl)',
-        border: '1px solid var(--border-color)',
-        boxShadow: 'var(--shadow-lg)'
-      }}>
-        <input
-          type="text"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder={selectedIssue ? 'Ask for help contributing to this issue...' : 'Select an issue to start chatting'}
-          style={{
-            flex: 1,
-            padding: 'var(--spacing-md) var(--spacing-lg)',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: 'var(--radius-lg)',
-            fontSize: '1rem',
-            backgroundColor: 'var(--bg-primary)',
-            color: 'var(--text-primary)',
-            outline: 'none',
-            transition: 'all 0.2s ease',
-          }}
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = 'var(--primary)';
-            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = 'var(--border-color-light)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-          disabled={isLoading || !selectedIssue}
-        />
-        <button
-          type="submit"
-          disabled={isLoading || !input.trim() || !selectedIssue}
-          style={{
-            padding: 'var(--spacing-md) var(--spacing-xl)',
-            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: 'var(--radius-lg)',
-            fontSize: '1rem',
-            fontWeight: '600',
-            opacity: isLoading || !input.trim() || !selectedIssue ? 0.5 : 1,
-            cursor: isLoading || !input.trim() || !selectedIssue ? 'not-allowed' : 'pointer',
-            boxShadow: isLoading || !input.trim() || !selectedIssue ? 'none' : 'var(--shadow-md)',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            if (!isLoading && input.trim() && selectedIssue) {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = isLoading || !input.trim() || !selectedIssue ? 'none' : 'var(--shadow-md)';
-          }}
-        >
-          Send
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} style={{ 
+          display: 'flex', 
+          gap: 'var(--spacing-md)',
+          backgroundColor: 'var(--bg-secondary)',
+          backdropFilter: 'blur(10px)',
+          padding: 'var(--spacing-md)',
+          borderRadius: 'var(--radius-xl)',
+          border: '1px solid var(--border-color)',
+          boxShadow: 'var(--shadow-lg)',
+          flexShrink: 0
+        }}>
+          <input
+            type="text"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder={selectedIssue ? 'Ask for help contributing to this issue...' : 'Select an issue to start chatting'}
+            style={{
+              flex: 1,
+              padding: 'var(--spacing-md) var(--spacing-lg)',
+              border: '1px solid var(--border-color-light)',
+              borderRadius: 'var(--radius-lg)',
+              fontSize: '1rem',
+              backgroundColor: 'var(--bg-primary)',
+              color: 'var(--text-primary)',
+              outline: 'none',
+              transition: 'all 0.2s ease',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = 'var(--primary)';
+              e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border-color-light)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+            disabled={isLoading || !selectedIssue}
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !input.trim() || !selectedIssue}
+            style={{
+              padding: 'var(--spacing-md) var(--spacing-xl)',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: 'var(--radius-lg)',
+              fontSize: '1rem',
+              fontWeight: '600',
+              opacity: isLoading || !input.trim() || !selectedIssue ? 0.5 : 1,
+              cursor: isLoading || !input.trim() || !selectedIssue ? 'not-allowed' : 'pointer',
+              boxShadow: isLoading || !input.trim() || !selectedIssue ? 'none' : 'var(--shadow-md)',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              if (!isLoading && input.trim() && selectedIssue) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = isLoading || !input.trim() || !selectedIssue ? 'none' : 'var(--shadow-md)';
+            }}
+          >
+            Send
+          </button>
+        </form>
+      </div>
     </div>
   )
 }
