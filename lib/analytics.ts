@@ -4,6 +4,7 @@ declare global {
   interface Window {
     gtag?: (...args: any[]) => void
     mixpanel?: {
+      init: (token: string, options?: Record<string, any>) => void
       track: (event: string, properties?: Record<string, any>) => void
       identify: (id: string) => void
     }

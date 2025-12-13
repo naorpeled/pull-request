@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     candidateIssues = candidateIssues.slice(0, 20)
 
     if (candidateIssues.length === 0) {
-      return streamText({
+      const result = await streamText({
         model: openai('gpt-4o-mini'),
         system: `You are a helpful assistant that helps developers find good first issues in open source projects.
 You can only recommend issues from the provided list. Never make up or hallucinate issue URLs.
@@ -72,7 +72,8 @@ If no issues match, politely explain that and suggest adjusting the search crite
             content: `No issues found matching the criteria. Please explain this to the user and suggest they try different languages or search terms.`,
           },
         ],
-      }).toDataStreamResponse()
+      })
+      return result.toDataStreamResponse()
     }
 
     // Format issues for LLM context
@@ -109,7 +110,7 @@ ${JSON.stringify(issuesContext, null, 2)}`
       recommendedIssuesResolve = resolve
     })
 
-    const result = streamText({
+    const resultPromise = streamText({
       model: openai('gpt-4o-mini'),
       system: systemPrompt,
       messages: [
@@ -144,6 +145,7 @@ ${JSON.stringify(issuesContext, null, 2)}`
     const stream = new ReadableStream({
       async start(controller) {
         // Stream the LLM response
+        const result = await resultPromise
         const response = result.toDataStreamResponse()
         const reader = response.body?.getReader()
         if (!reader) {

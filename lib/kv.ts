@@ -1,19 +1,19 @@
 import { kv } from '@vercel/kv'
-import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies'
+import { cookies } from 'next/headers'
+import { randomUUID } from 'crypto'
 
 export interface UserPreferences {
   preferredLanguages: string[]
   consent: boolean | null
 }
 
-export async function getAnonId(cookieStore: ReadonlyRequestCookies): Promise<string> {
+export async function getAnonId(cookieStore: Awaited<ReturnType<typeof cookies>>): Promise<string> {
   const existing = cookieStore.get('anonId')
   if (existing?.value) {
     return existing.value
   }
 
   // Generate new anonymous ID
-  const { randomUUID } = await import('uuid')
   const newId = randomUUID()
   return newId
 }
