@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies()
     const anonId = await getAnonId(cookieStore)
-    const ip = request.headers.get('x-forwarded-for') || request.ip || 'unknown'
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
 
     // Rate limiting
     const allowed = await checkRateLimit(anonId, ip)
