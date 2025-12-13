@@ -1,0 +1,9 @@
+{
+  "crons": [
+    {
+      "path": "/api/admin/refresh-dataset",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}
+
