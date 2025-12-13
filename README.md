@@ -14,7 +14,7 @@ A chatbot that helps developers find good first issues in open source projects, 
 
 - **Frontend**: Next.js 16 (App Router), React 19, TypeScript
 - **Backend**: Next.js API Routes, Vercel AI SDK
-- **Storage**: Vercel KV (Upstash Redis)
+- **Storage**: Redis (via official redis package)
 - **LLM**: OpenAI GPT-4o-mini (via Vercel AI SDK)
 - **Analytics**: Mixpanel, Google Analytics 4
 - **Deployment**: Vercel
@@ -27,7 +27,7 @@ A chatbot that helps developers find good first issues in open source projects, 
 - pnpm (install via `npm install -g pnpm` or see [pnpm.io](https://pnpm.io/installation))
 - Vercel account
 - OpenAI API key
-- Vercel KV database (created via Vercel dashboard)
+- Redis instance (e.g., Upstash Redis, Redis Cloud, or self-hosted)
 - (Optional) Mixpanel account and Google Analytics 4 property
 
 ### Installation
@@ -51,9 +51,10 @@ Create a `.env.local` file with the following variables:
 # OpenAI API Key (required)
 OPENAI_API_KEY=your_openai_api_key
 
-# Vercel KV (required)
-KV_REST_API_URL=your_kv_rest_api_url
-KV_REST_API_TOKEN=your_kv_rest_api_token
+# Redis (required)
+REDIS_URL=redis://default:password@host:port
+# Or for Redis with TLS:
+# REDIS_URL=rediss://default:password@host:port
 
 # Cron Secret for dataset refresh (required for production)
 CRON_SECRET=your_random_secret_string
@@ -63,11 +64,23 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 NEXT_PUBLIC_MIXPANEL_TOKEN=your_mixpanel_token
 ```
 
-### Getting Vercel KV Credentials
+### Getting Redis Connection URL
 
-1. Go to your Vercel dashboard
-2. Navigate to your project → Storage → Create Database → KV
-3. Copy the `KV_REST_API_URL` and `KV_REST_API_TOKEN` from the dashboard
+You can use any Redis provider:
+
+1. **Upstash Redis** (recommended for Vercel deployments):
+   - Go to [Upstash Console](https://console.upstash.com/)
+   - Create a new Redis database
+   - Copy the `REDIS_URL` from the dashboard
+
+2. **Redis Cloud**:
+   - Sign up at [Redis Cloud](https://redis.com/try-free/)
+   - Create a database
+   - Copy the connection URL
+
+3. **Self-hosted Redis**:
+   - Format: `redis://[username]:[password]@[host]:[port]`
+   - For TLS: `rediss://[username]:[password]@[host]:[port]`
 
 ### Initial Dataset Load
 
@@ -211,7 +224,8 @@ The chat API is rate-limited to 20 requests per minute per user (based on anonym
 │   └── PrivacyDisclaimer.tsx  # Privacy notice component
 ├── lib/
 │   ├── analytics.ts           # Analytics helpers (GA4, Mixpanel)
-│   ├── kv.ts                  # Vercel KV utilities
+│   ├── redis.ts               # Redis client utilities
+│   ├── kv.ts                  # KV utilities (uses Redis)
 │   └── dataset.ts             # Dataset normalization and filtering
 └── README.md
 ```
@@ -221,8 +235,7 @@ The chat API is rate-limited to 20 requests per minute per user (based on anonym
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `OPENAI_API_KEY` | Yes | OpenAI API key for LLM |
-| `KV_REST_API_URL` | Yes | Vercel KV REST API URL |
-| `KV_REST_API_TOKEN` | Yes | Vercel KV REST API token |
+| `REDIS_URL` | Yes | Redis connection URL (format: `redis://[username]:[password]@[host]:[port]`) |
 | `CRON_SECRET` | Yes (prod) | Secret for protecting cron endpoints |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | No | Google Analytics 4 measurement ID |
 | `NEXT_PUBLIC_MIXPANEL_TOKEN` | No | Mixpanel project token |

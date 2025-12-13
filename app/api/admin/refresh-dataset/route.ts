@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { kv } from '@vercel/kv'
+import { set } from '@/lib/redis'
 import { normalizeIssue, buildLanguageIndex, IssueRecord, DatasetIssue } from '@/lib/dataset'
 
 export async function POST(request: NextRequest) {
@@ -45,17 +45,17 @@ export async function POST(request: NextRequest) {
     // Build language index
     const languageIndex = buildLanguageIndex(issues)
 
-    // Store in KV
-    await kv.set('dataset:issues', JSON.stringify(issues))
+    // Store in Redis
+    await set('dataset:issues', JSON.stringify(issues))
     
     // Store language indices
     for (const [lang, issueUrls] of Object.entries(languageIndex)) {
-      await kv.set(`dataset:index:lang:${lang}`, JSON.stringify(issueUrls))
+      await set(`dataset:index:lang:${lang}`, JSON.stringify(issueUrls))
     }
 
     // Store list of all languages
     const allLanguages = Array.from(new Set(issues.flatMap(i => i.repoLanguages)))
-    await kv.set('dataset:languages', JSON.stringify(allLanguages))
+    await set('dataset:languages', JSON.stringify(allLanguages))
 
     console.log(`Indexed ${Object.keys(languageIndex).length} languages`)
 

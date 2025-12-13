@@ -54,16 +54,51 @@ export default function Home() {
   }
 
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       <ConsentBanner
         hasConsent={hasConsent}
         onAccept={() => handleConsentChange(true)}
         onReject={() => handleConsentChange(false)}
       />
-      <div style={{ flex: 1, maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '20px' }}>
-        <h1 style={{ marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>
-          Find Your Next Open Source Contribution
-        </h1>
+      <div style={{ 
+        flex: 1, 
+        maxWidth: '1600px', 
+        margin: '0 auto', 
+        width: '100%', 
+        padding: 'var(--spacing-md)',
+        display: 'flex',
+        flexDirection: 'column',
+        height: 'calc(100vh - 100px)',
+        gap: 'var(--spacing-md)'
+      }}>
+        <div style={{
+          textAlign: 'center',
+          flexShrink: 0
+        }}>
+          <h1 style={{ 
+            marginBottom: 'var(--spacing-xs)', 
+            fontSize: 'clamp(1.5rem, 3vw, 2.5rem)', 
+            fontWeight: '800',
+            background: 'linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            lineHeight: '1.2',
+            textShadow: '0 2px 20px rgba(255, 255, 255, 0.3)'
+          }}>
+            Find Your Next Open Source Contribution
+          </h1>
+          <p style={{
+            fontSize: 'clamp(0.875rem, 1.5vw, 1rem)',
+            color: 'rgba(255, 255, 255, 0.95)',
+            fontWeight: '400',
+            maxWidth: '600px',
+            margin: '0 auto',
+            textShadow: '0 1px 10px rgba(0, 0, 0, 0.2)'
+          }}>
+            Discover perfect first issues tailored to your skills and interests
+          </p>
+        </div>
         <PrivacyDisclaimer />
         <ChatInterface
           preferredLanguages={preferredLanguages}

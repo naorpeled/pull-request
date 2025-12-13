@@ -14,7 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body style={{ minHeight: '100vh', position: 'relative' }}>
+        {children}
+      </body>
     </html>
   )
 }

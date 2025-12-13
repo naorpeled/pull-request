@@ -1,6 +1,6 @@
-import { kv } from '@vercel/kv'
 import { cookies } from 'next/headers'
 import { randomUUID } from 'crypto'
+import { getJson, setJson } from './redis'
 
 export interface UserPreferences {
   preferredLanguages: string[]
@@ -20,7 +20,7 @@ export async function getAnonId(cookieStore: Awaited<ReturnType<typeof cookies>>
 
 export async function getPreferences(anonId: string): Promise<UserPreferences> {
   try {
-    const data = await kv.get<UserPreferences>(`prefs:${anonId}`)
+    const data = await getJson<UserPreferences>(`prefs:${anonId}`)
     return data || { preferredLanguages: [], consent: null }
   } catch (error) {
     console.error('Error getting preferences:', error)
@@ -32,7 +32,7 @@ export async function setPreferences(anonId: string, prefs: Partial<UserPreferen
   try {
     const existing = await getPreferences(anonId)
     const updated = { ...existing, ...prefs }
-    await kv.set(`prefs:${anonId}`, updated)
+    await setJson(`prefs:${anonId}`, updated)
   } catch (error) {
     console.error('Error setting preferences:', error)
     throw error
@@ -41,7 +41,7 @@ export async function setPreferences(anonId: string, prefs: Partial<UserPreferen
 
 export async function getConsent(anonId: string): Promise<boolean | null> {
   try {
-    const data = await kv.get<boolean | null>(`consent:${anonId}`)
+    const data = await getJson<boolean | null>(`consent:${anonId}`)
     return data ?? null
   } catch (error) {
     console.error('Error getting consent:', error)
@@ -51,7 +51,7 @@ export async function getConsent(anonId: string): Promise<boolean | null> {
 
 export async function setConsent(anonId: string, consented: boolean): Promise<void> {
   try {
-    await kv.set(`consent:${anonId}`, consented)
+    await setJson(`consent:${anonId}`, consented)
     // Also update preferences for convenience
     await setPreferences(anonId, { consent: consented })
   } catch (error) {

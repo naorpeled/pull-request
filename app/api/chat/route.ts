@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
-import { kv } from '@vercel/kv'
+import { get, incr, expire } from '@/lib/redis'
 import { streamText } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { getAnonId, getPreferences } from '@/lib/kv'
@@ -9,14 +9,15 @@ import { IssueRecord, filterIssuesByLanguages, filterIssuesByQuery } from '@/lib
 // Rate limiting helper
 async function checkRateLimit(anonId: string, ip: string): Promise<boolean> {
   const key = `rate:chat:${anonId}:${ip}`
-  const count = await kv.get<number>(key) || 0
+  const countStr = await get(key)
+  const count = countStr ? parseInt(countStr, 10) : 0
   
   if (count >= 20) { // 20 requests per window
     return false
   }
 
-  await kv.incr(key)
-  await kv.expire(key, 60) // 1 minute window
+  await incr(key)
+  await expire(key, 60) // 1 minute window
   return true
 }
 
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { message, preferredLanguages: requestedLanguages } = body
+    const { message, preferredLanguages: requestedLanguages, selectedIssue } = body
 
     if (!message || typeof message !== 'string') {
       return new Response('Message is required', { status: 400 })
@@ -43,19 +44,79 @@ export async function POST(request: NextRequest) {
     const prefs = await getPreferences(anonId)
     const preferredLanguages = requestedLanguages || prefs.preferredLanguages || []
 
-    // Load dataset from KV
-    const issuesJson = await kv.get<string>('dataset:issues')
+    // Load dataset from Redis
+    const issuesJson = await get('dataset:issues')
     if (!issuesJson) {
       return new Response('Dataset not available. Please refresh the dataset first.', { status: 503 })
     }
 
     const allIssues: IssueRecord[] = JSON.parse(issuesJson)
 
-    // Filter issues by preferred languages
-    let candidateIssues = filterIssuesByLanguages(allIssues, preferredLanguages)
+    // If a specific issue is selected, focus the assistant on that issue only
+    if (selectedIssue?.url) {
+      const matchedIssue = allIssues.find(issue => issue.url === selectedIssue.url)
+      const issue = matchedIssue || selectedIssue
 
-    // Apply query-based filtering
-    candidateIssues = filterIssuesByQuery(candidateIssues, message)
+      const issueContext = `Issue title: ${issue.title}
+Issue URL: ${issue.url}
+Repository: ${issue.repoName} (${issue.repoUrl || 'no repo url provided'})
+Repo description: ${issue.repoDesc || 'No description provided.'}
+Repo stars: ${issue.repoStars}
+Repo languages: ${(issue.repoLanguages || []).join(', ') || 'Not listed'}
+Labels: ${(issue.labels || []).join(', ') || 'None'}
+Created at: ${issue.createdAt}
+Comments: ${'commentCount' in issue ? issue.commentCount : 'unknown'}
+Assignees: ${'assigneeCount' in issue ? issue.assigneeCount : 'unknown'}`
+
+      const systemPrompt = `You are a helpful contributor assistant. Guide the user to successfully work on the specific GitHub issue below.
+
+ISSUE CONTEXT
+${issueContext}
+
+RULES
+- Stay focused on this issue only; do not invent other issues or repositories.
+- Give concise, actionable steps: understanding the problem, how to reproduce, likely code areas, and a suggested plan.
+- Offer verification ideas and quick checks. If something is missing, ask clarifying questions before guessing.
+- Keep URLs exact as provided.`
+
+      const result = await streamText({
+        model: openai('gpt-4o-mini'),
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: message,
+          },
+        ],
+      })
+
+      return result.toDataStreamResponse()
+    }
+
+    // Filter issues by preferred languages
+    const languageMatchedIssues = filterIssuesByLanguages(allIssues, preferredLanguages)
+    let candidateIssues = filterIssuesByQuery(languageMatchedIssues, message)
+
+    const hasExplicitFilter =
+      /more than\s*\d+\s*stars?/i.test(message) ||
+      />\s*\d+\s*stars?/i.test(message) ||
+      /less than\s*\d+\s*stars?/i.test(message) ||
+      /<\s*\d+\s*stars?/i.test(message) ||
+      /no assignees?/i.test(message) ||
+      /unassigned/i.test(message) ||
+      /has comments?/i.test(message) ||
+      /with comments?/i.test(message)
+
+    // If query filtering removed everything but the selected languages do exist,
+    // fall back to the language-only set so we still return relevant issues.
+    if (
+      candidateIssues.length === 0 &&
+      preferredLanguages.length > 0 &&
+      languageMatchedIssues.length > 0 &&
+      !hasExplicitFilter
+    ) {
+      candidateIssues = languageMatchedIssues
+    }
 
     // Limit to top 20 candidates for LLM context
     candidateIssues = candidateIssues.slice(0, 20)

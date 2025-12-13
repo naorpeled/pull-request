@@ -62,22 +62,41 @@ export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }
       <div
         onClick={() => setIsOpen(!isOpen)}
         style={{
-          padding: '12px',
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-          backgroundColor: 'white',
+          padding: 'var(--spacing-md) var(--spacing-lg)',
+          border: '1px solid var(--border-color)',
+          borderRadius: 'var(--radius-lg)',
+          backgroundColor: 'var(--bg-secondary)',
+          backdropFilter: 'blur(10px)',
           cursor: 'pointer',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          boxShadow: 'var(--shadow-md)',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'var(--primary-light)';
+          e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'var(--border-color)';
+          e.currentTarget.style.boxShadow = 'var(--shadow-md)';
         }}
       >
-        <span>
+        <span style={{ 
+          color: selectedLanguages.length === 0 ? 'var(--text-secondary)' : 'var(--text-primary)',
+          fontWeight: selectedLanguages.length === 0 ? '400' : '500'
+        }}>
           {selectedLanguages.length === 0
             ? 'Select programming languages...'
             : `${selectedLanguages.length} language${selectedLanguages.length > 1 ? 's' : ''} selected`}
         </span>
-        <span>{isOpen ? '▲' : '▼'}</span>
+        <span style={{ 
+          color: 'var(--primary)',
+          fontSize: '0.8rem',
+          transition: 'transform 0.2s ease',
+          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+        }}>▼</span>
       </div>
 
       {isOpen && (
@@ -87,11 +106,12 @@ export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }
             top: '100%',
             left: 0,
             right: 0,
-            marginTop: '4px',
-            border: '1px solid #ddd',
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            marginTop: 'var(--spacing-sm)',
+            border: '1px solid var(--border-color)',
+            borderRadius: 'var(--radius-lg)',
+            backgroundColor: 'var(--bg-secondary)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: 'var(--shadow-xl)',
             zIndex: 1000,
             maxHeight: '300px',
             overflowY: 'auto',
@@ -104,24 +124,41 @@ export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }
             onChange={e => setSearchTerm(e.target.value)}
             style={{
               width: '100%',
-              padding: '8px',
+              padding: 'var(--spacing-md)',
               border: 'none',
-              borderBottom: '1px solid #ddd',
+              borderBottom: '1px solid var(--border-color-light)',
               fontSize: '0.9rem',
+              backgroundColor: 'transparent',
+              color: 'var(--text-primary)',
+              outline: 'none',
             }}
             onClick={e => e.stopPropagation()}
           />
-          <div style={{ padding: '8px' }}>
+          <div style={{ padding: 'var(--spacing-sm)' }}>
             {filteredLanguages.map(lang => (
               <label
                 key={lang}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  padding: '8px',
+                  padding: 'var(--spacing-sm) var(--spacing-md)',
                   cursor: 'pointer',
-                  borderRadius: '4px',
-                  backgroundColor: selectedLanguages.includes(lang) ? '#e3f2fd' : 'transparent',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: selectedLanguages.includes(lang) 
+                    ? 'rgba(99, 102, 241, 0.15)' 
+                    : 'transparent',
+                  transition: 'all 0.2s ease',
+                  marginBottom: '2px',
+                }}
+                onMouseEnter={(e) => {
+                  if (!selectedLanguages.includes(lang)) {
+                    e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.05)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedLanguages.includes(lang)) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
                 }}
                 onClick={e => {
                   e.stopPropagation()
@@ -132,9 +169,18 @@ export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }
                   type="checkbox"
                   checked={selectedLanguages.includes(lang)}
                   onChange={() => toggleLanguage(lang)}
-                  style={{ marginRight: '8px' }}
+                  style={{ 
+                    marginRight: 'var(--spacing-sm)',
+                    accentColor: 'var(--primary)',
+                    cursor: 'pointer'
+                  }}
                 />
-                {lang}
+                <span style={{ 
+                  color: selectedLanguages.includes(lang) ? 'var(--primary-dark)' : 'var(--text-primary)',
+                  fontWeight: selectedLanguages.includes(lang) ? '500' : '400'
+                }}>
+                  {lang}
+                </span>
               </label>
             ))}
           </div>
@@ -142,19 +188,21 @@ export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }
       )}
 
       {selectedLanguages.length > 0 && (
-        <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+        <div style={{ marginTop: 'var(--spacing-md)', display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-sm)' }}>
           {selectedLanguages.map(lang => (
             <span
               key={lang}
               style={{
-                padding: '4px 12px',
-                backgroundColor: '#0070f3',
+                padding: 'var(--spacing-xs) var(--spacing-md)',
+                background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
                 color: 'white',
-                borderRadius: '16px',
+                borderRadius: 'var(--radius-full)',
                 fontSize: '0.85rem',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: 'var(--spacing-xs)',
+                fontWeight: '500',
+                boxShadow: 'var(--shadow-sm)',
               }}
             >
               {lang}
@@ -164,14 +212,28 @@ export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }
                   onUpdate()
                 }}
                 style={{
-                  background: 'none',
+                  background: 'rgba(255, 255, 255, 0.2)',
                   border: 'none',
                   color: 'white',
                   cursor: 'pointer',
                   fontSize: '1rem',
                   lineHeight: 1,
-                  padding: 0,
-                  marginLeft: '4px',
+                  padding: '0 4px',
+                  borderRadius: '50%',
+                  width: '18px',
+                  height: '18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                  e.currentTarget.style.transform = 'scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
                 ×
