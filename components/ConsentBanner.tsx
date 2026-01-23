@@ -1,5 +1,9 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+
 interface ConsentBannerProps {
   hasConsent: boolean | null
   onAccept: () => void
@@ -7,112 +11,75 @@ interface ConsentBannerProps {
 }
 
 export default function ConsentBanner({ hasConsent, onAccept, onReject }: ConsentBannerProps) {
+  const [isVisible, setIsVisible] = useState(false)
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false)
+
+  useEffect(() => {
+    if (hasConsent === null) {
+      // Delay showing banner for smooth entrance
+      const timer = setTimeout(() => setIsVisible(true), 300)
+      return () => clearTimeout(timer)
+    }
+  }, [hasConsent])
+
+  const handleAccept = () => {
+    setIsAnimatingOut(true)
+    setTimeout(() => {
+      onAccept()
+    }, 200)
+  }
+
+  const handleReject = () => {
+    setIsAnimatingOut(true)
+    setTimeout(() => {
+      onReject()
+    }, 200)
+  }
+
   if (hasConsent !== null) {
     return null
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'var(--bg-secondary)',
-        backdropFilter: 'blur(20px)',
-        borderTop: '1px solid var(--border-color)',
-        padding: 'var(--spacing-lg)',
-        boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
-        zIndex: 1000,
-      }}
-    >
-      <div style={{ 
-        maxWidth: '1400px', 
-        margin: '0 auto', 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        gap: 'var(--spacing-lg)', 
-        flexWrap: 'wrap' 
-      }}>
-        <div style={{ flex: 1, minWidth: '300px' }}>
-          <p style={{ 
-            marginBottom: 'var(--spacing-sm)', 
-            fontWeight: '600',
-            color: 'var(--text-primary)',
-            fontSize: '1rem'
-          }}>
-            We use analytics to improve your experience
-          </p>
-          <p style={{ 
-            fontSize: '0.9rem', 
-            color: 'var(--text-secondary)',
-            lineHeight: '1.5'
-          }}>
-            We send anonymous usage metrics to Mixpanel and Google Analytics. Your chat messages are{' '}
-            <strong style={{ color: 'var(--text-primary)' }}>not stored</strong> in our database.{' '}
-            <a href="/privacy" style={{ 
-              color: 'var(--primary)', 
-              textDecoration: 'underline',
-              fontWeight: '500'
-            }}>
-              Learn more
-            </a>
-          </p>
+    <Alert 
+        className={`
+          fixed bottom-0 left-0 right-0 z-[1000] rounded-none border-t border-x-0 
+          shadow-[0_-4px_20px_rgba(0,0,0,0.15)] bg-card/95 backdrop-blur-xl
+          transition-all duration-300 ease-out
+          ${isVisible && !isAnimatingOut ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}
+        `}
+        role="dialog"
+        aria-label="Cookie consent"
+      >
+        <div className="max-w-[1400px] mx-auto px-4 py-4 sm:py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
+          <div className="flex-1 min-w-0">
+            <p className="mb-1 font-semibold text-foreground text-sm sm:text-base">
+              We use analytics to improve your experience
+            </p>
+            <AlertDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              We send anonymous usage metrics to Mixpanel and Google Analytics. Your chat messages are{' '}
+              <strong className="text-foreground">not stored</strong> in our database.{' '}
+              <a href="/privacy" className="text-primary underline font-medium hover:text-primary/80 transition-colors">
+                Learn more
+              </a>
+            </AlertDescription>
+          </div>
+          <div className="flex gap-3 w-full sm:w-auto shrink-0">
+            <Button
+              variant="outline"
+              onClick={handleReject}
+              className="text-sm flex-1 sm:flex-none"
+            >
+              Decline
+            </Button>
+            <Button
+              onClick={handleAccept}
+              className="text-sm flex-1 sm:flex-none shadow-md hover:shadow-lg transition-all"
+            >
+              Accept
+            </Button>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
-          <button
-            onClick={onReject}
-            style={{
-              padding: 'var(--spacing-md) var(--spacing-xl)',
-              backgroundColor: 'transparent',
-              color: 'var(--text-primary)',
-              border: '1px solid var(--border-color-light)',
-              borderRadius: 'var(--radius-md)',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-              e.currentTarget.style.borderColor = 'var(--text-secondary)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.borderColor = 'var(--border-color-light)';
-            }}
-          >
-            Decline
-          </button>
-          <button
-            onClick={onAccept}
-            style={{
-              padding: 'var(--spacing-md) var(--spacing-xl)',
-              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: 'var(--radius-md)',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              boxShadow: 'var(--shadow-md)',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-            }}
-          >
-            Accept
-          </button>
-        </div>
-      </div>
-    </div>
+      </Alert>
   )
 }
-

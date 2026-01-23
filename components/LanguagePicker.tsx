@@ -1,6 +1,12 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
+import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 const COMMON_LANGUAGES = [
   'Python',
@@ -45,7 +51,7 @@ export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
-  const triggerRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   const filteredLanguages = COMMON_LANGUAGES.filter(lang =>
     lang.toLowerCase().includes(searchTerm.toLowerCase())
@@ -63,11 +69,16 @@ export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false)
+        setSearchTerm('')
       }
     }
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside)
+      // Auto-focus search input when popover opens
+      setTimeout(() => {
+        searchInputRef.current?.focus()
+      }, 100)
     }
 
     return () => {
@@ -75,191 +86,110 @@ export default function LanguagePicker({ selectedLanguages, onChange, onUpdate }
     }
   }, [isOpen])
 
-  return (
-    <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div ref={triggerRef} style={{ position: 'relative' }}>
-        <div
-          onClick={() => setIsOpen(!isOpen)}
-          style={{
-            padding: 'var(--spacing-md) var(--spacing-lg)',
-            border: '1px solid var(--border-color)',
-            borderRadius: 'var(--radius-lg)',
-            backgroundColor: 'var(--bg-secondary)',
-            backdropFilter: 'blur(10px)',
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            boxShadow: 'var(--shadow-md)',
-            transition: 'all 0.2s ease',
-            minHeight: '72px'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'var(--primary-light)';
-            e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'var(--border-color)';
-            e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-          }}
-        >
-          <span style={{ 
-            color: selectedLanguages.length === 0 ? 'var(--text-secondary)' : 'var(--text-primary)',
-            fontWeight: selectedLanguages.length === 0 ? '400' : '500'
-          }}>
-            {selectedLanguages.length === 0
-              ? 'Select programming languages...'
-              : `${selectedLanguages.length} language${selectedLanguages.length > 1 ? 's' : ''} selected`}
-          </span>
-          <span style={{ 
-            color: 'var(--primary)',
-            fontSize: '0.8rem',
-            transition: 'transform 0.2s ease',
-            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)'
-          }}>▼</span>
-        </div>
+  // Keyboard navigation in language list
+  useEffect(() => {
+    if (!isOpen) return
 
-        {isOpen && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              marginTop: 'var(--spacing-sm)',
-              border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius-lg)',
-              backgroundColor: 'var(--bg-secondary)',
-              backdropFilter: 'blur(10px)',
-              boxShadow: 'var(--shadow-xl)',
-              zIndex: 1000,
-              maxHeight: '300px',
-              overflowY: 'auto',
-            }}
-          >
-          <input
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false)
+        setSearchTerm('')
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen])
+
+  return (
+    <div ref={containerRef} className="flex flex-col h-full">
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger>
+          <div className="relative">
+            <div className="px-4 py-3 border border-border rounded-lg bg-card/50 backdrop-blur-sm cursor-pointer flex justify-between items-center shadow-md transition-all hover:border-primary/50 hover:shadow-lg min-h-[72px]">
+              <span className={cn(
+                selectedLanguages.length === 0 ? 'text-muted-foreground' : 'text-foreground',
+                selectedLanguages.length === 0 ? 'font-normal' : 'font-medium'
+              )}>
+                {selectedLanguages.length === 0
+                  ? 'Select programming languages...'
+                  : `${selectedLanguages.length} language${selectedLanguages.length > 1 ? 's' : ''} selected`}
+              </span>
+              <span className={cn(
+                "text-primary text-xs transition-transform",
+                isOpen && "rotate-180"
+              )}>▼</span>
+            </div>
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className="w-full p-0 max-h-[300px] overflow-y-auto">
+          <Input
+            ref={searchInputRef}
             type="text"
-            placeholder="Search languages..."
+            placeholder="Search languages... (Type to filter)"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            style={{
-              width: '100%',
-              padding: 'var(--spacing-md)',
-              border: 'none',
-              borderBottom: '1px solid var(--border-color-light)',
-              fontSize: '0.9rem',
-              backgroundColor: 'transparent',
-              color: 'var(--text-primary)',
-              outline: 'none',
-            }}
+            className="rounded-none border-0 border-b rounded-t-lg"
             onClick={e => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setIsOpen(false)
+                setSearchTerm('')
+              }
+            }}
+            aria-label="Search programming languages"
           />
-          <div style={{ padding: 'var(--spacing-sm)' }}>
+          <div className="p-1">
             {filteredLanguages.map(lang => (
               <label
                 key={lang}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: 'var(--spacing-sm) var(--spacing-md)',
-                  cursor: 'pointer',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: selectedLanguages.includes(lang) 
-                    ? 'rgba(99, 102, 241, 0.15)' 
-                    : 'transparent',
-                  transition: 'all 0.2s ease',
-                  marginBottom: '2px',
-                }}
-                onMouseEnter={(e) => {
-                  if (!selectedLanguages.includes(lang)) {
-                    e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.05)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!selectedLanguages.includes(lang)) {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }
-                }}
+                className={cn(
+                  "flex items-center px-3 py-2 cursor-pointer rounded-md transition-colors mb-0.5",
+                  selectedLanguages.includes(lang)
+                    ? "bg-primary/15"
+                    : "hover:bg-primary/5"
+                )}
               >
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={selectedLanguages.includes(lang)}
                   onChange={() => toggleLanguage(lang)}
-                  style={{ 
-                    marginRight: 'var(--spacing-sm)',
-                    accentColor: 'var(--primary)',
-                    cursor: 'pointer'
-                  }}
+                  className="mr-2"
                 />
-                <span style={{ 
-                  color: selectedLanguages.includes(lang) ? 'var(--primary-dark)' : 'var(--text-primary)',
-                  fontWeight: selectedLanguages.includes(lang) ? '500' : '400'
-                }}>
+                <span className={cn(
+                  selectedLanguages.includes(lang) ? 'text-primary font-medium' : 'text-foreground font-normal'
+                )}>
                   {lang}
                 </span>
               </label>
             ))}
           </div>
-        </div>
-        )}
-      </div>
+        </PopoverContent>
+      </Popover>
 
       {selectedLanguages.length > 0 && (
-        <div style={{ marginTop: 'var(--spacing-md)', display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-sm)' }}>
+        <div className="mt-4 flex flex-wrap gap-2">
           {selectedLanguages.map(lang => (
-            <span
+            <Badge
               key={lang}
-              style={{
-                padding: 'var(--spacing-xs) var(--spacing-md)',
-                background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
-                color: 'white',
-                borderRadius: 'var(--radius-full)',
-                fontSize: '0.85rem',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 'var(--spacing-xs)',
-                fontWeight: '500',
-                boxShadow: 'var(--shadow-sm)',
-              }}
+              variant="default"
+              className="px-3 py-1 text-sm font-medium flex items-center gap-1"
             >
               {lang}
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-4 w-4 p-0 hover:bg-primary-foreground/20 text-primary-foreground"
                 onClick={() => {
                   onChange(selectedLanguages.filter(l => l !== lang))
                   onUpdate()
                 }}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  border: 'none',
-                  color: 'white',
-                  cursor: 'pointer',
-                  fontSize: '1rem',
-                  lineHeight: 1,
-                  padding: '0 4px',
-                  borderRadius: '50%',
-                  width: '18px',
-                  height: '18px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-                  e.currentTarget.style.transform = 'scale(1.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
               >
                 ×
-              </button>
-            </span>
+              </Button>
+            </Badge>
           ))}
         </div>
       )}
     </div>
   )
 }
-

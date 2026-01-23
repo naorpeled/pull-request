@@ -1,6 +1,9 @@
 'use client'
 
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { trackEvent } from '@/lib/analytics'
+import { cn } from '@/lib/utils'
 
 interface IssueCard {
   url: string
@@ -36,109 +39,50 @@ export default function IssueCards({
   }
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 'var(--spacing-sm)',
-      width: '100%',
-    }}>
-      <h3 style={{ 
-        marginBottom: 'var(--spacing-xs)', 
-        fontSize: '0.95rem', 
-        fontWeight: '700',
-        color: 'var(--text-primary)',
-      }}>
+    <div className="flex flex-col gap-2 w-full">
+      <h3 className="mb-1 text-[0.95rem] font-bold text-foreground">
         Recommended Issues
       </h3>
-      <div style={{ 
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--spacing-sm)',
-        maxHeight: '400px',
-        overflowY: 'auto',
-        paddingRight: 'var(--spacing-xs)',
-      }}>
+      <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-1">
         {issues.map((issue, idx) => (
-          <div
+          <Card
             key={idx}
-            style={{
-              border: '1px solid var(--border-color-light)',
-              borderRadius: 'var(--radius-md)',
-              padding: 'var(--spacing-sm) var(--spacing-md)',
-              backgroundColor: 'rgba(99, 102, 241, 0.05)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 'var(--spacing-xs)',
-              transition: 'all 0.2s ease',
-              cursor: 'pointer',
-              flexShrink: 0,
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
-              e.currentTarget.style.borderColor = 'var(--primary-light)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-              e.currentTarget.style.borderColor = 'var(--border-color)';
-            }}
+            className={cn(
+              "border-border/50 bg-primary/5 cursor-pointer transition-all flex-shrink-0",
+              "hover:-translate-y-1 hover:shadow-xl hover:border-primary/50"
+            )}
             onClick={() => handleIssueClick(issue.url)}
           >
-            <div>
-              <h3
-                style={{
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  marginBottom: 'var(--spacing-xs)',
-                  color: 'var(--primary-dark)',
-                  lineHeight: '1.3',
-                }}
-              >
-                {issue.title}
-              </h3>
-              <p style={{ 
-                fontSize: '0.85rem', 
-                color: 'var(--text-primary)', 
-                marginBottom: 'var(--spacing-xs)',
-                fontWeight: '500'
-              }}>
-                {issue.repoName}
-              </p>
-            </div>
+            <CardContent className="p-3 flex flex-col gap-1">
+              <div>
+                <h3 className="text-[0.95rem] font-semibold mb-1 text-primary leading-tight">
+                  {issue.title}
+                </h3>
+                <p className="text-[0.85rem] text-foreground mb-1 font-medium">
+                  {issue.repoName}
+                </p>
+              </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-xs)' }}>
-              {issue.labels.slice(0, 3).map((label, labelIdx) => (
-                <span
-                  key={labelIdx}
-                  style={{
-                    padding: '2px var(--spacing-xs)',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: '0.7rem',
-                    color: 'var(--primary-dark)',
-                    fontWeight: '500',
-                  }}
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
+              <div className="flex flex-wrap gap-1">
+                {issue.labels.slice(0, 3).map((label, labelIdx) => (
+                  <Badge
+                    key={labelIdx}
+                    variant="secondary"
+                    className="px-1 text-[0.7rem] text-primary bg-primary/10"
+                  >
+                    {label}
+                  </Badge>
+                ))}
+              </div>
 
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              fontSize: '0.75rem', 
-              color: 'var(--text-secondary)',
-            }}>
-              <span>⭐ {issue.repoStars.toLocaleString()}</span>
-              <span>{formatDate(issue.createdAt)}</span>
-            </div>
-          </div>
+              <div className="flex justify-between items-center text-[0.75rem] text-muted-foreground">
+                <span>⭐ {issue.repoStars.toLocaleString()}</span>
+                <span>{formatDate(issue.createdAt)}</span>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>
   )
 }
-
